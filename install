@@ -8,17 +8,24 @@ Usage: $(basename $0) [options]
 Options:
     -n/--name     : Name of the commiter
     -e/--email    : Email of the commiter
+    -i/--ignore   : Ignore (do nothing) for the git_template and git ignore
 HELP
+}
+
+function backup(){
+    if [ -e $1 ]; then
+        mv $1 $1_bak
+        if [ $? -eq 0 ];then
+            echo "Existing $1 backed up to $1_bak"
+        else
+            exit 1
+        fi
+    fi
 }
 
 NAME=""
 EMAIL=""
-if [[ $# -eq 0 ]];then
-    echo "What is your name?"
-    read NAME
-    echo "What is your email address?"
-    read EMAIL
-fi
+IGNORE=0
 
 while [[ $# -gt 0 ]];do
     key="$1"
@@ -34,6 +41,10 @@ while [[ $# -gt 0 ]];do
             EMAIL=$1
             shift
             ;;
+        -i|--ignore)
+            shift
+            IGNORE=1
+            ;;
         *)
             help
             exit 1;
@@ -41,19 +52,30 @@ while [[ $# -gt 0 ]];do
     esac
 done
 
+if [[ "$NAME" == "" ]];then
+    echo "What is your name?"
+    read NAME
+fi
+
+if [[ "$EMAIL" == "" ]];then
+    echo "What is your email?"
+    read EMAIL
+fi
+
 echo "Using name: $NAME and email $EMAIL"
+if [ $IGNORE -eq 0 ];then
+    backup $HOME/.gitignore_global
+    backup $HOME/.git_template
+    cp gitignore_global $HOME/.gitignore_global
+    cp -r ./git_template $HOME/.git_template
+else
+    echo "Ignoring git_template and gitignore global"
+fi
 
 cat ./gitconfig | sed "s/NAME/$NAME/" > .gitconfig
 sed -i "s/EMAIL/$EMAIL/" ./.gitconfig
-if [ -e $HOME/.gitconfig ]; then
-    mv $HOME/.gitconfig $HOME/.gitconfig_bak
-    if [ $? -eq 0 ];then
-        echo "Existing .gitconfig backed up to $HOME/.gitconfig_bak"
-    else
-        exit 1
-fi
+backup $HOME/.gitconfig
 
-fi
 mv .gitconfig $HOME/.gitconfig
 exit $?
 
