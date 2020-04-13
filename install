@@ -6,9 +6,9 @@ install gitconfig file with updated name and email
 Usage: $(basename $0) [options]
             Without options the installation is interactive
 Options:
-    -n/--name     : Name of the commiter
-    -e/--email    : Email of the commiter
-    -i/--ignore   : Ignore (do nothing) for the git_template and git ignore
+    -n/--name   : Name of the commiter
+    -e/--email  : Email of the commiter
+    -c/--copy   : Copy git_template and global git ignore to home directory
 HELP
 }
 
@@ -25,7 +25,7 @@ function backup(){
 
 NAME=""
 EMAIL=""
-IGNORE=0
+DO_COPY=0
 
 while [[ $# -gt 0 ]];do
     key="$1"
@@ -41,9 +41,9 @@ while [[ $# -gt 0 ]];do
             EMAIL=$1
             shift
             ;;
-        -i|--ignore)
+        -c|--copy)
             shift
-            IGNORE=1
+            DO_COPY=1
             ;;
         *)
             help
@@ -63,7 +63,7 @@ if [[ "$EMAIL" == "" ]];then
 fi
 
 echo "Using name: $NAME and email $EMAIL"
-if [ $IGNORE -eq 0 ];then
+if [ $DO_COPY -eq 1 ];then
     backup $HOME/.gitignore_global
     backup $HOME/.git_template
     cp gitignore_global $HOME/.gitignore_global
