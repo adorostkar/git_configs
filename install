@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+GITCONFIG_DIR=$(cd $(dirname $(readlink -f $0)); pwd -P)
 function help(){
 cat<<HELP
 install gitconfig file with updated name and email
@@ -66,16 +67,16 @@ echo "Using name: $NAME and email $EMAIL"
 if [ $DO_COPY -eq 1 ];then
     backup $HOME/.gitignore_global
     backup $HOME/.git_template
-    cp gitignore_global $HOME/.gitignore_global
-    cp -r ./git_template $HOME/.git_template
+    cp ${GITCONFIG_DIR}/gitignore_global $HOME/.gitignore_global
+    cp -r ${GITCONFIG_DIR}/git_template $HOME/.git_template
 else
     echo "Ignoring git_template and gitignore global"
 fi
 
-cat ./gitconfig | sed "s/NAME/$NAME/" > .gitconfig
-sed -i "s/EMAIL/$EMAIL/" ./.gitconfig
+cat ${GITCONFIG_DIR}/gitconfig | sed "s/NAME/$NAME/" > ${GITCONFIG_DIR}/.gitconfig
+sed -i "s/EMAIL/$EMAIL/" ${GITCONFIG_DIR}/.gitconfig
 backup $HOME/.gitconfig
 
-mv .gitconfig $HOME/.gitconfig
+mv ${GITCONFIG_DIR}/.gitconfig $HOME/.gitconfig
 exit $?
 
