@@ -9,9 +9,10 @@
 [apply]
   whitespace = fix
 [alias]
-  files = show --pretty="" --name-only
-  ctags = !.git/hooks/ctags
-  lol   = log --graph --decorate --pretty=oneline --abbrev-commit
+  files  = show --pretty="" --name-only
+  ctags  = !.git/hooks/ctags
+  lol    = log --graph --decorate --pretty=oneline --abbrev-commit
+  subupd = submodule update --init --recursive
 [color]
   ui = auto
 [color "branch"]
