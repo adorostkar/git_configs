@@ -10,6 +10,8 @@ Options:
     -n/--name   : Name of the commiter
     -e/--email  : Email of the commiter
     -c/--copy   : Copy git_template and global git ignore to home directory
+    -l/--link   : link git_template and global git ignore to home directory 
+                    (Not compatible with -c option)
 HELP
 }
 
@@ -27,6 +29,7 @@ function backup(){
 NAME=""
 EMAIL=""
 DO_COPY=0
+DO_LINK=0
 
 while [[ $# -gt 0 ]];do
     key="$1"
@@ -46,12 +49,21 @@ while [[ $# -gt 0 ]];do
             shift
             DO_COPY=1
             ;;
+        -l|--link)
+            shift
+            DO_LINK=1
+            ;;
         *)
             help
             exit 1;
             ;;
     esac
 done
+
+if [ $DO_LINK -eq 1 ] && [ $DO_COPY -eq 1 ]; then
+    echo "Copy and link options can't be active at the same time"
+    exit 1
+fi
 
 if [[ "$NAME" == "" ]];then
     echo "What is your name?"
@@ -69,6 +81,11 @@ if [ $DO_COPY -eq 1 ];then
     backup $HOME/.git_template
     cp ${GITCONFIG_DIR}/gitignore_global $HOME/.gitignore_global
     cp -r ${GITCONFIG_DIR}/git_template $HOME/.git_template
+elif [ $DO_LINK -eq 1 ];then
+    backup $HOME/.gitignore_global
+    backup $HOME/.git_template
+    ln -sf ${GITCONFIG_DIR}/gitignore_global $HOME/.gitignore_global
+    ln -sf ${GITCONFIG_DIR}/git_template $HOME/.git_template
 else
     echo "Ignoring git_template and gitignore global"
 fi
