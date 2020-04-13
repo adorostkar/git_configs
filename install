@@ -15,11 +15,21 @@ Options:
 HELP
 }
 
+# Logging stuff.
+MARK_OK="\033[1;32m✔\033[0m"
+MARK_NOK="\033[1;31m✖\033[0m"
+MARK_DO="\033[1;34m➜\033[0m"
+
+function e_header()   { printf "\n\033[1m$@\033[0m\n"; }
+function e_success()  { printf " %b $@\n" $MARK_OK; }
+function e_error()    { printf " %b $@\n" $MARK_NOK; }
+function e_arrow()    { printf " %b $@\n" $MARK_DO; }
+
 function backup(){
     if [ -e $1 ]; then
         mv $1 $1_bak
         if [ $? -eq 0 ];then
-            echo "$1 backed up to $1_bak"
+            e_success "$1 backed up to $1_bak"
         else
             exit 1
         fi
@@ -61,33 +71,35 @@ while [[ $# -gt 0 ]];do
 done
 
 if [ $DO_LINK -eq 1 ] && [ $DO_COPY -eq 1 ]; then
-    echo "Copy and link options can't be active at the same time"
+    e_error "Copy and link options can't be active at the same time"
     exit 1
 fi
 
 if [[ "$NAME" == "" ]];then
-    echo "What is your name?"
+    e_header "What is your name?"
     read NAME
 fi
 
 if [[ "$EMAIL" == "" ]];then
-    echo "What is your email?"
+    e_header "What is your email?"
     read EMAIL
 fi
 
-echo "Using name: $NAME and email $EMAIL"
+e_header "Using name: $NAME and email $EMAIL"
 if [ $DO_COPY -eq 1 ];then
+    e_arrow "Copying global ignore and templates"
     backup $HOME/.gitignore_global
     backup $HOME/.git_template
     cp ${GITCONFIG_DIR}/gitignore_global $HOME/.gitignore_global
     cp -r ${GITCONFIG_DIR}/git_template $HOME/.git_template
 elif [ $DO_LINK -eq 1 ];then
+    e_arrow "Linking global ignore and templates"
     backup $HOME/.gitignore_global
     backup $HOME/.git_template
     ln -sf ${GITCONFIG_DIR}/gitignore_global $HOME/.gitignore_global
     ln -sf ${GITCONFIG_DIR}/git_template $HOME/.git_template
 else
-    echo "Ignoring git_template and gitignore global"
+    e_error "Ignoring git_template and gitignore global"
 fi
 
 cat ${GITCONFIG_DIR}/gitconfig | sed "s/NAME/$NAME/" > ${GITCONFIG_DIR}/.gitconfig
