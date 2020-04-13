@@ -10,7 +10,7 @@ Options:
     -n/--name   : Name of the commiter
     -e/--email  : Email of the commiter
     -c/--copy   : Copy git_template and global git ignore to home directory
-    -l/--link   : link git_template and global git ignore to home directory 
+    -l/--link   : link git_template and global git ignore to home directory
                     (Not compatible with -c option)
 HELP
 }
@@ -19,7 +19,7 @@ function backup(){
     if [ -e $1 ]; then
         mv $1 $1_bak
         if [ $? -eq 0 ];then
-            echo "Existing $1 backed up to $1_bak"
+            echo "$1 backed up to $1_bak"
         else
             exit 1
         fi
