@@ -7,11 +7,13 @@ install gitconfig file with updated name and email
 Usage: $(basename $0) [options]
             Without options the installation is interactive
 Options:
-    -n/--name   : Name of the commiter
-    -e/--email  : Email of the commiter
-    -c/--copy   : Copy git_template and global git ignore to home directory
-    -l/--link   : link git_template and global git ignore to home directory
-                    (Not compatible with -c option)
+    -n/--name      : Name of the author
+    -e/--email     : Email of the author
+    --ignore-update: ignore updating the gitconfig name and email.
+                        Overrules -e and -n flags
+    -c/--copy      : Copy git_template and global git ignore to home directory
+    -l/--link      : link git_template and global git ignore to home directory
+                          (Not compatible with -c option)
 HELP
 }
 
@@ -40,6 +42,7 @@ NAME=""
 EMAIL=""
 DO_COPY=0
 DO_LINK=0
+IGNORE_UPDATE=0
 
 while [[ $# -gt 0 ]];do
     key="$1"
@@ -49,6 +52,10 @@ while [[ $# -gt 0 ]];do
             shift
             NAME=$1
             shift
+            ;;
+        --ignore-update)
+            shift
+            IGNORE_UPDATE=1
             ;;
         -e|--email)
             shift
@@ -75,17 +82,7 @@ if [ $DO_LINK -eq 1 ] && [ $DO_COPY -eq 1 ]; then
     exit 1
 fi
 
-if [[ "$NAME" == "" ]];then
-    e_header "What is your name?"
-    read NAME
-fi
 
-if [[ "$EMAIL" == "" ]];then
-    e_header "What is your email?"
-    read EMAIL
-fi
-
-e_header "Using name: $NAME and email $EMAIL"
 if [ $DO_COPY -eq 1 ];then
     e_arrow "Copying global ignore and templates"
     backup $HOME/.gitignore_global
@@ -102,10 +99,26 @@ else
     e_error "Ignoring git_template and gitignore global"
 fi
 
-cat ${GITCONFIG_DIR}/gitconfig | sed "s/NAME/$NAME/" > ${GITCONFIG_DIR}/.gitconfig
-sed -i "s/EMAIL/$EMAIL/" ${GITCONFIG_DIR}/.gitconfig
-backup $HOME/.gitconfig
+if [ $IGNORE_UPDATE -eq 0 ];then
+    if [[ "$NAME" == "" ]];then
+        e_header "What is your name?"
+        read NAME
+    fi
 
-mv ${GITCONFIG_DIR}/.gitconfig $HOME/.gitconfig
+    if [[ "$EMAIL" == "" ]];then
+        e_header "What is your email?"
+        read EMAIL
+    fi
+
+    e_header "Using name: $NAME and email $EMAIL"
+    cat ${GITCONFIG_DIR}/gitconfig | sed "s/NAME/$NAME/" > ${GITCONFIG_DIR}/.gitconfig
+    sed -i "s/EMAIL/$EMAIL/" ${GITCONFIG_DIR}/.gitconfig
+else
+    e_header "Please update the name and email in ~/.gitconfig"
+fi
+
+backup $HOME/.gitconfig
+cp ${GITCONFIG_DIR}/gitconfig $HOME/.gitconfig
+
 exit $?
 
