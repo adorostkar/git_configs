@@ -118,7 +118,7 @@ else
 fi
 
 backup $HOME/.gitconfig
-cp ${GITCONFIG_DIR}/gitconfig $HOME/.gitconfig
+mv ${GITCONFIG_DIR}/.gitconfig $HOME/.gitconfig
 
 exit $?
 
