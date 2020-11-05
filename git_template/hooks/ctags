@@ -1,8 +1,12 @@
-#!/bin/sh
+#!/bin/bash
+# Notice. This should not be run from inside the '.git' directory
 set -e
 PATH="/usr/local/bin:$PATH"
 dir="`git rev-parse --git-dir`"
+root_dir="$(git rev-parse --show-toplevel)"
+pushd $root_dir 2>&1 >/dev/null
 trap 'rm -f "$dir/$$.tags"' EXIT
-git ls-files | \
+git ls-files --full-name| \
   ctags --tag-relative -L - -f"$dir/$$.tags" --languages=-javascript,sql --c++-kinds=+p --fields=+iaS --extra=+q
 mv "$dir/$$.tags" "$dir/tags"
+popd 2>&1 >/dev/null
